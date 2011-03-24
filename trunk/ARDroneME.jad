@@ -1,9 +1,9 @@
 MIDlet-1: ARDroneME, ARDroneME.png, ARDroneME
 MIDlet-Description: Java (J2ME) based AR.Drone Controller
-MIDlet-Jar-Size: 9198
+MIDlet-Jar-Size: 9541
 MIDlet-Jar-URL: ARDroneME.jar
 MIDlet-Name: ARDroneME
 MIDlet-Vendor: MAPGPS
-MIDlet-Version: 1.0
+MIDlet-Version: 1.1
 MicroEdition-Configuration: CLDC-1.1
 MicroEdition-Profile: MIDP-2.0
