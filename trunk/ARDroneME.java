@@ -6,7 +6,7 @@ Author: MAPGPS at
 	http://www.ourdev.cn/bbs/bbs_list.jsp?bbs_id=1025
 	http://bbs.5imx.com/bbs/viewthread.php?tid=415063
 Initial: 2011.03.13
-Updated: 2011.03.23
+Updated: 2011.03.25
 
 
 ########## Keyboad Layout ############
@@ -222,13 +222,15 @@ public class ARDroneME extends MIDlet implements Runnable, CommandListener, Item
         }
      }
 
-    public synchronized void run() {
+    public void run() {
     	int cnt = 0, navdata_cnt_old = navdata_cnt;
 
 	while(app_running) {
 	try {
 	    if (at_cmd == null) {
-                wait(INTERVAL);
+	    	synchronized(this) {
+                    wait(INTERVAL);
+        	}
 
 		if (++cnt > 100) { //3s
 		    cnt = 0;
@@ -317,10 +319,10 @@ class ArCanvas extends Canvas {
     float roll = 0, pitch = 0, gaz = 0, yaw = 0;
     boolean shift = false;
     int w, h, last_y, slider_y0, slider_y, o_x, o_y;
-    //static final String arrow1[] = {"U", "R", "D", "L"};
-    //static final String arrow2[] = {"F", "R", "B", "L"};
-    static final String arrow1[] = {"上", "右", "下", "左"};
-    static final String arrow2[] = {"前", "右", "后", "左"};
+    static final String arrow1[] = {"U", "R", "D", "L"};
+    static final String arrow2[] = {"F", "R", "B", "L"};
+    //static final String arrow1[] = {"上", "右", "下", "左"};
+    //static final String arrow2[] = {"前", "右", "后", "左"};
     boolean arrow_pressed[] = {false, false, false, false};
     String arrow[] = arrow1;
     ARDroneME ardroneme;
@@ -585,13 +587,21 @@ class ArCanvas extends Canvas {
 	g.setColor(0, 0, 255); //JavaFX1.2 bug: (B,G,R) format for Text
         g.drawString("E", w/2 - 2, 33, Graphics.BASELINE|Graphics.LEFT);
 
-        g.setColor(0, 0, 0);
-        /*g.drawString(arrow[0], o_x - 3, o_y - FIRE_WW/2 - 2, Graphics.BASELINE|Graphics.LEFT);
+        if (arrow_pressed[0]) g.setColor(0, 255, 0);
+        else g.setColor(0, 0, 0);
+        g.drawString(arrow[0], o_x - 3, o_y - FIRE_WW/2 - 2, Graphics.BASELINE|Graphics.LEFT);
+        if (arrow_pressed[2]) g.setColor(0, 255, 0);
+        else g.setColor(0, 0, 0);
         g.drawString(arrow[2], o_x - 3, o_y + FIRE_WW/2 + 13, Graphics.BASELINE|Graphics.LEFT);
+        if (arrow_pressed[1]) g.setColor(0, 255, 0);
+        else g.setColor(0, 0, 0);
         g.drawString(arrow[1], o_x + FIRE_WW/2 + 2, o_y + 4, Graphics.BASELINE|Graphics.LEFT);
+        if (arrow_pressed[3]) g.setColor(0, 255, 0);
+        else g.setColor(0, 0, 0);
         g.drawString(arrow[3], o_x - FIRE_WW/2 - 8, o_y + 4, Graphics.BASELINE|Graphics.LEFT);
+        g.setColor(0, 0, 0);
         g.drawString("Shift", o_x - 10, o_y + 4, Graphics.BASELINE|Graphics.LEFT);
-        */
+        /*
         if (arrow_pressed[0]) g.setColor(0, 255, 0);
         else g.setColor(0, 0, 0);
         g.drawString(arrow[0], o_x - 5, o_y - FIRE_WW/2 - 2, Graphics.BASELINE|Graphics.LEFT);
@@ -606,6 +616,7 @@ class ArCanvas extends Canvas {
         g.drawString(arrow[3], o_x - FIRE_WW/2 - 10, o_y + 4, Graphics.BASELINE|Graphics.LEFT);
         g.setColor(0, 0, 0);
         g.drawString("切换", o_x - 10, o_y + 4, Graphics.BASELINE|Graphics.LEFT);
+        */
 
         g.drawString("Speed(%): ", 2, slider_y0 - 4, Graphics.BASELINE|Graphics.LEFT);
         g.drawString("" + (int)(SPEED_MAX*100), 13, slider_y0 + 10, Graphics.BASELINE|Graphics.LEFT);
