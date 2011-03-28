@@ -17,16 +17,13 @@ class ArCanvas extends Canvas {
     boolean shift = false;
     int w, h, wh, fh, bw, bh, last_y, slider_y0, slider_y, o_x, o_y;
     Font f;
-    static final String arrow1[] = {"U", "R", "D", "L"};
-    static final String arrow2[] = {"F", "RR", "B", "LR"};
-    boolean arrow_pressed[] = {false, false, false, false};
-    String arrow[] = arrow1;
     ARDroneME ardroneme;
     int battery = 0;
     float altitude = 0;
     String status_str = "";
     Vector widgets = new Vector();
     JoystickL js_L;
+    JoystickR js_R;
 
     public ArCanvas(ARDroneME ardroneme) {
     	this.ardroneme = ardroneme;
@@ -47,6 +44,7 @@ class ArCanvas extends Canvas {
 	o_y = h/2;
 
 	js_L = new JoystickL(this, (w - slider_w)/4, h/2, w/3);
+	js_R = new JoystickR(this, w- (w - slider_w)/4, h/2, w/3);
     }
 
     public void keyPressed(int keyCode) {
@@ -61,30 +59,26 @@ class ArCanvas extends Canvas {
 
             case Canvas.UP:
                 System.out.println("UP 1");
-		arrow_pressed[0] = true;
-                if (shift) pitch = speed;
-            	else gaz = speed;
+                if (shift) js_R.handleUP(1);
+            	else js_L.handleUP(1);
                 break;
             
             case Canvas.DOWN:
                 System.out.println("DOWN 1");
-		arrow_pressed[2] = true;
-                if (shift) pitch = -speed;
-            	else gaz = -speed;
+                if (shift) js_R.handleDOWN(1);
+            	else js_L.handleDOWN(1);
                 break;
             
             case Canvas.LEFT:
                 System.out.println("LEFT 1");
-		arrow_pressed[3] = true;
-                if (!shift) roll = -speed;
-            	else yaw = -speed;
+                if (!shift) js_L.handleLEFT(1);
+            	else js_R.handleLEFT(1);
                 break;
             
             case Canvas.RIGHT:
                 System.out.println("RIGHT 1");
-		arrow_pressed[1] = true;
-                if (!shift) roll = speed;
-            	else yaw = speed;
+                if (!shift) js_L.handleRIGHT(1);
+            	else js_R.handleRIGHT(1);
                 break; 
             
             default:/*
@@ -101,38 +95,8 @@ class ArCanvas extends Canvas {
 
     public void keyReleased(int keyCode) {
 	//System.out.println("keyReleased: " + keyCode);
-        switch (getGameAction(keyCode)) {
-            case Canvas.UP:
-                System.out.println("UP 0");
-		arrow_pressed[0] = false;
-                if (shift) pitch = 0;
-            	else gaz = 0;
-                break;
-            
-            case Canvas.DOWN:
-                System.out.println("DOWN 0");
-		arrow_pressed[2] = false;
-                if (shift) pitch = 0;
-            	else gaz = 0;
-                break;
-            
-            case Canvas.LEFT:
-                System.out.println("LEFT 0");
-		arrow_pressed[3] = false;
-                if (!shift) roll = 0;
-            	else yaw = 0;
-                break;
-            
-            case Canvas.RIGHT:
-                System.out.println("RIGHT 0");
-		arrow_pressed[1] = false;
-                if (!shift) roll = 0;
-            	else yaw = 0;
-                break;            	
-
-            default:
-            	return;
-        }
+	js_L.handleReleased();
+	js_R.handleReleased();
 
 	repaint();
         ardroneme.wake_thread();
@@ -140,6 +104,7 @@ class ArCanvas extends Canvas {
 
     public void pointerPressed(int x, int y) {
     	js_L.pointerPressed(x, y);
+    	js_R.pointerPressed(x, y);
     	
 	if (x >= (w - slider_w)/2 && x <= (w + slider_w)/2 && y >= slider_y0 && y <= slider_y0 + slider_len) {
 	    last_y = y;
@@ -150,39 +115,6 @@ class ArCanvas extends Canvas {
 	    if (!ardroneme.flying_flag) ardroneme.send_at_cmd("AT*REF=1,290718208");	//Takeoff
 	    else ardroneme.send_at_cmd("AT*REF=1,290717696");			//Landing
 	    ardroneme.flying_flag = !ardroneme.flying_flag;
-	}
-
-	if (x > o_x - FIRE_W/2 && x < o_x + FIRE_W/2 && y > o_y - FIRE_W/2 && y < o_y + FIRE_W/2) {
-            System.out.println("FIRE 1");
-	    shift = !shift;
-	}
-
-	if (x > o_x - FIRE_W/2 && x < o_x + FIRE_W/2 && y > o_y - FIRE_WW - 10 && y < o_y - FIRE_WW/2) {
-            System.out.println("UP 1");
-            arrow_pressed[0] = true;
-            if (shift) pitch = speed;
-            else gaz = speed;
-	}
-
-	if (x > o_x - FIRE_W/2 && x < o_x + FIRE_W/2 && y > o_y + FIRE_WW/2 && y < o_y + FIRE_WW + 10) {
-            System.out.println("DOWN 1");
-            arrow_pressed[2] = true;
-            if (shift) pitch = -speed;
-            else gaz = -speed;
-	}
-
-	if (x > o_x - FIRE_WW - 10 && x < o_x - FIRE_WW/2 && y > o_y - FIRE_W/2 && y < o_y + FIRE_W/2) {
-            System.out.println("LEFT 1");
-            arrow_pressed[3] = true;
-            if (!shift) roll = -speed;
-            else yaw = -speed;
- 	}
-
-	if (x > o_x + FIRE_WW/2 && x < o_x + FIRE_WW + 10 && y > o_y - FIRE_W/2 && y < o_y + FIRE_W/2) {
-            System.out.println("RIGHT 1");
-            arrow_pressed[1] = true;
-            if (!shift) roll = speed;
-            else yaw = speed;
 	}
 	
 	if (!ardroneme.flying_flag && x > w/2 - 10 && x < w/2 + 10 && y > 20 && y < 40) {
@@ -196,17 +128,9 @@ class ArCanvas extends Canvas {
 
     public void pointerReleased(int x, int y) {
     	js_L.pointerReleased(x, y);
+    	js_R.pointerReleased(x, y);
 
-        System.out.println("pointerReleased");
-        pointer_focus = 0;
-        roll = 0;
-        pitch = 0;
-        gaz = 0;
-        yaw = 0;
-        arrow_pressed[0] = false;
-        arrow_pressed[1] = false;
-        arrow_pressed[2] = false;
-        arrow_pressed[3] = false;
+	pointer_focus = 0;
 
 	repaint();
         ardroneme.wake_thread();
@@ -214,6 +138,7 @@ class ArCanvas extends Canvas {
 
     public void pointerDragged(int x, int y) {
     	js_L.pointerDragged(x, y);
+    	js_R.pointerDragged(x, y);
 
 	if (pointer_focus == 1) {
 	    slider_y += y - last_y;
@@ -242,57 +167,12 @@ class ArCanvas extends Canvas {
     	g.fillRect(0, 0, w, h);
 
     	js_L.paint(g);
+    	js_R.paint(g);
 
         g.setColor(0, 0, 255);
 	g.drawRect((w - slider_w)/2, slider_y0, slider_w, slider_len);
 	g.setColor(255, 0, 255);
-	g.fillRect((w - slider_w)/2 + 1, slider_y, slider_w - 1, slider_thick);
-
-        g.setColor(180, 180, 180);
-    	g.fillRect(o_x - FIRE_WW/2, o_y - FIRE_WW/2, FIRE_WW, FIRE_WW);
-
-	//Up
-	g.drawLine(o_x - FIRE_W/2, o_y - FIRE_W/2, o_x, o_y - FIRE_WW);
-	g.drawLine(o_x + FIRE_W/2, o_y - FIRE_W/2, o_x, o_y - FIRE_WW);
-	g.drawLine(o_x - FIRE_W/2 + 1, o_y - FIRE_W/2, o_x, o_y - FIRE_WW + 2);
-	g.drawLine(o_x + FIRE_W/2 - 1, o_y - FIRE_W/2, o_x, o_y - FIRE_WW + 2);
-
-	//Down
-	g.drawLine(o_x - FIRE_W/2, o_y + FIRE_W/2, o_x, o_y + FIRE_WW);
-	g.drawLine(o_x + FIRE_W/2, o_y + FIRE_W/2, o_x, o_y + FIRE_WW);
-	g.drawLine(o_x - FIRE_W/2 + 1, o_y + FIRE_W/2, o_x, o_y + FIRE_WW - 2);
-	g.drawLine(o_x + FIRE_W/2 - 1, o_y + FIRE_W/2, o_x, o_y + FIRE_WW - 2);
-
-	//Left
-	g.drawLine(o_x - FIRE_W/2, o_y - FIRE_W/2, o_x - FIRE_WW, o_y);
-	g.drawLine(o_x - FIRE_W/2, o_y + FIRE_W/2, o_x - FIRE_WW, o_y);
-	g.drawLine(o_x - FIRE_W/2, o_y - FIRE_W/2 + 1, o_x - FIRE_WW + 2, o_y);
-	g.drawLine(o_x - FIRE_W/2, o_y + FIRE_W/2 - 1, o_x - FIRE_WW + 2, o_y);
-
-	//Right
-	g.drawLine(o_x + FIRE_W/2, o_y - FIRE_W/2, o_x + FIRE_WW, o_y);
-	g.drawLine(o_x + FIRE_W/2, o_y + FIRE_W/2, o_x + FIRE_WW, o_y);
-	g.drawLine(o_x + FIRE_W/2, o_y - FIRE_W/2 + 1, o_x + FIRE_WW - 2, o_y);
-	g.drawLine(o_x + FIRE_W/2, o_y + FIRE_W/2 - 1, o_x + FIRE_WW - 2, o_y);
-
-	if (shift) {
-	    arrow = arrow2;
-	    g.setColor(0, 0, 0);
-	    g.drawLine(o_x - FIRE_W/2, o_y - FIRE_W/2, o_x + FIRE_W/2, o_y - FIRE_W/2);
-	    g.drawLine(o_x - FIRE_W/2, o_y - FIRE_W/2, o_x - FIRE_W/2, o_y + FIRE_W/2);
-	    g.setColor(255, 255, 255);
-	    g.drawLine(o_x + FIRE_W/2, o_y - FIRE_W/2, o_x + FIRE_W/2, o_y + FIRE_W/2);
-	    g.drawLine(o_x - FIRE_W/2, o_y + FIRE_W/2, o_x + FIRE_W/2, o_y + FIRE_W/2);
-	} else {
-	    arrow = arrow1;
-	    g.setColor(255, 255, 255);
-	    g.drawLine(o_x - FIRE_W/2, o_y - FIRE_W/2, o_x + FIRE_W/2, o_y - FIRE_W/2);
-	    g.drawLine(o_x - FIRE_W/2, o_y - FIRE_W/2, o_x - FIRE_W/2, o_y + FIRE_W/2);
-	    g.setColor(0, 0, 0);
-	    g.drawLine(o_x + FIRE_W/2, o_y - FIRE_W/2, o_x + FIRE_W/2, o_y + FIRE_W/2);
-	    g.drawLine(o_x - FIRE_W/2, o_y + FIRE_W/2, o_x + FIRE_W/2, o_y + FIRE_W/2);
-	}
-	
+	g.fillRect((w - slider_w)/2 + 1, slider_y, slider_w - 1, slider_thick);	
 	
         g.setColor(200, 200, 200);
 	g.fillRoundRect((w - bw)/2, h - fh - bh, bw, bh, bh, bh);
@@ -311,21 +191,7 @@ class ArCanvas extends Canvas {
 	g.setColor(0, 0, 255); //JavaFX1.2 bug: (B,G,R) format for Text
         g.drawString("E", w/2, fh + (bh + fh)/2, Graphics.BOTTOM|Graphics.HCENTER);
 
-        if (arrow_pressed[0]) g.setColor(0, 255, 0);
-        else g.setColor(0, 0, 0);
-        g.drawString(arrow[0], o_x - 3, o_y - FIRE_WW/2 - 2, Graphics.BASELINE|Graphics.LEFT);
-        if (arrow_pressed[2]) g.setColor(0, 255, 0);
-        else g.setColor(0, 0, 0);
-        g.drawString(arrow[2], o_x - 3, o_y + FIRE_WW/2 + 13, Graphics.BASELINE|Graphics.LEFT);
-        if (arrow_pressed[1]) g.setColor(0, 255, 0);
-        else g.setColor(0, 0, 0);
-        g.drawString(arrow[1], o_x + FIRE_WW/2 + 2, o_y + 4, Graphics.BASELINE|Graphics.LEFT);
-        if (arrow_pressed[3]) g.setColor(0, 255, 0);
-        else g.setColor(0, 0, 0);
-        g.drawString(arrow[3], o_x - FIRE_WW/2 - 8, o_y + 4, Graphics.BASELINE|Graphics.LEFT);
         g.setColor(0, 0, 0);
-        g.drawString("Shift", o_x - 10, o_y + 4, Graphics.BASELINE|Graphics.LEFT);
-
         g.drawString("Speed(%):", w/2, slider_y0, Graphics.BOTTOM|Graphics.HCENTER);
         g.drawString("" + (int)(SPEED_MAX*100), w/2, slider_y0, Graphics.TOP|Graphics.HCENTER);
         g.drawString("" + (int)(SPEED_MIN*100), w/2, slider_y0 + slider_len, Graphics.BOTTOM|Graphics.HCENTER);

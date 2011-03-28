@@ -14,11 +14,10 @@ abstract class Joystick extends Widget implements PointerHandler {
     	js_y = oy;
     }
     
-    public void paint(Graphics g) {
-        g.setColor(100, 100, 100);
-    	basePaint(g);
-        g.fillArc(js_x - bw/2, js_y - bw/2, bw, bw, 0, 360);
-    	
+    public void joystickPaint(Graphics g) {
+        g.setColor(180, 180, 180);
+    	widgetPaint(g);
+        g.fillArc(js_x - bw/2, js_y - bw/2, bw, bw, 0, 360);	
     }
 
     public void pointerPressed(int x, int y) {
@@ -26,13 +25,13 @@ abstract class Joystick extends Widget implements PointerHandler {
 	    last_x = x;
 	    last_y = y;
 	    focused = true;
+	    handlePressed();
 	}
     }
 
     public void pointerReleased(int x, int y) {
 	focused = false;	
-    	js_x = ox;
-    	js_y = oy;
+    	handleReleased();
     }
 
     public void pointerDragged(int x, int y) {
@@ -66,4 +65,6 @@ abstract class Joystick extends Widget implements PointerHandler {
     abstract void handleDOWN(float ratio);
     abstract void handleLEFT(float ratio);
     abstract void handleRIGHT(float ratio);
+    abstract void handlePressed();
+    abstract void handleReleased();
 }
