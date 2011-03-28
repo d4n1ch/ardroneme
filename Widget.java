@@ -17,7 +17,7 @@ class Widget {
     	return (x >= ox - w/2 && x <= ox + w/2 && y >= oy - w/2 && y <= oy + w/2);
     }
     
-    public void basePaint(Graphics g) {
+    public void widgetPaint(Graphics g) {
     	g.drawRect(ox - w/2, oy - w/2, w, h);  	
     }
 }
