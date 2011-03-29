@@ -38,6 +38,7 @@ class ArCanvas extends Canvas {
 	slider_len = h*46/100;
 	slider_thick = fh/3;
 
+	//Todo: extends class Widget for the slider
 	slider_y0 = (h - slider_len)/2;
 	slider_y = slider_y0 + (int)((slider_len - 5) * (SPEED_MAX - speed) / (SPEED_MAX - SPEED_MIN));
 	o_x = w - FIRE_WW/2 - 30;
@@ -45,6 +46,7 @@ class ArCanvas extends Canvas {
 
 	js_L = new JoystickL(this, (w - slider_w)/4, h/2, w/3);
 	js_R = new JoystickR(this, w- (w - slider_w)/4, h/2, w/3);
+	//Todo: use Vetor widgets to store them ...
     }
 
     public void keyPressed(int keyCode) {
@@ -95,7 +97,7 @@ class ArCanvas extends Canvas {
 
     public void keyReleased(int keyCode) {
 	//System.out.println("keyReleased: " + keyCode);
-	js_L.handleReleased();
+	js_L.handleReleased(); //Todo: loop Vetor widgets for all handlers
 	js_R.handleReleased();
 
 	repaint();
@@ -103,9 +105,10 @@ class ArCanvas extends Canvas {
     }
 
     public void pointerPressed(int x, int y) {
-    	js_L.pointerPressed(x, y);
+    	js_L.pointerPressed(x, y); //Todo: loop Vetor widgets for all handlers
     	js_R.pointerPressed(x, y);
     	
+	//Todo: extends class Widget for the slider
 	if (x >= (w - slider_w)/2 && x <= (w + slider_w)/2 && y >= slider_y0 && y <= slider_y0 + slider_len) {
 	    last_y = y;
 	    pointer_focus = 1;
@@ -117,7 +120,7 @@ class ArCanvas extends Canvas {
 	    ardroneme.flying_flag = !ardroneme.flying_flag;
 	}
 	
-	if (!ardroneme.flying_flag && x > w/2 - 10 && x < w/2 + 10 && y > 20 && y < 40) {
+	if (!ardroneme.flying_flag && x > w/2 - bh/2 && x < w/2 + bh/2 && y > fh && y < fh + bh) {
 	    System.out.println("E");
 	    ardroneme.send_at_cmd("AT*REF=1,290717952");
 	}
@@ -127,7 +130,7 @@ class ArCanvas extends Canvas {
     }
 
     public void pointerReleased(int x, int y) {
-    	js_L.pointerReleased(x, y);
+    	js_L.pointerReleased(x, y); //Todo: loop Vetor widgets for all handlers
     	js_R.pointerReleased(x, y);
 
 	pointer_focus = 0;
@@ -137,9 +140,10 @@ class ArCanvas extends Canvas {
     }
 
     public void pointerDragged(int x, int y) {
-    	js_L.pointerDragged(x, y);
+    	js_L.pointerDragged(x, y); //Todo: loop Vetor widgets for all handlers
     	js_R.pointerDragged(x, y);
 
+	//Todo: extends class Widget for the slider
 	if (pointer_focus == 1) {
 	    slider_y += y - last_y;
 	    speed = SPEED_MAX - (SPEED_MAX - SPEED_MIN) * (slider_y - slider_y0 - 1) / (slider_len - slider_thick);
@@ -166,9 +170,10 @@ class ArCanvas extends Canvas {
         g.setColor(255, 255, 255);
     	g.fillRect(0, 0, w, h);
 
-    	js_L.paint(g);
+    	js_L.paint(g); //Todo: loop Vetor widgets for all handlers
     	js_R.paint(g);
 
+	//Todo: extends class Widget for the slider
         g.setColor(0, 0, 255);
 	g.drawRect((w - slider_w)/2, slider_y0, slider_w, slider_len);
 	g.setColor(255, 0, 255);

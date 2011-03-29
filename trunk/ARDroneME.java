@@ -12,8 +12,9 @@ Initial: 2011.03.13
 Takeoff/Landing: a toggle button
 Hovering: when the Arrow button loosed
 Speed(%) slider: change rudder rate in range of 0%~90%
+Arrow Keys and 2 Soft-Joysticks on the touch screen are linked.
 
-Arrow buttons:
+Arrow Keys:
               Go Up
                 ^
                 |
@@ -22,7 +23,7 @@ Arrow buttons:
                 v
              Go Down
 
-Arrow buttons with central button pressed down (Shift):
+Arrow Keys with central button pressed down (Shift):
            Go Forward
                 ^
                 |

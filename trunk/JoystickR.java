@@ -96,11 +96,15 @@ class JoystickR extends Joystick {
 	else g.setColor(100, 100, 100);
 	g.drawArc(ox - w/2 - bw*4/10, oy - bw/2, bw, bw, 120, 120);
 	g.drawArc(ox - w/2 - bw*4/10 -1, oy - bw/2, bw, bw, 120, 120);
+	g.drawLine(ox - w/2 - bw*4/10, oy + bw*4/10, ox - w/2 - bw*2/10, oy + bw*4/10);
+	g.drawLine(ox - w/2 - bw*2/10, oy + bw*2/10, ox - w/2 - bw*2/10, oy + bw*4/10);
 
 	//Right (Yaw+) arrow
 	if (arcanvas.yaw > 0) g.setColor(0, 255, 0);
 	else g.setColor(100, 100, 100);
 	g.drawArc(ox + w/2 - bw*6/10, oy - bw/2, bw, bw, -60, 120);
 	g.drawArc(ox + w/2 - bw*6/10 - 1, oy - bw/2, bw, bw, -60, 120);
+	g.drawLine(ox + w/2 + bw*4/10, oy + bw*4/10, ox + w/2 + bw*2/10, oy + bw*4/10);
+	g.drawLine(ox + w/2 + bw*2/10, oy + bw*2/10, ox + w/2 + bw*2/10, oy + bw*4/10);
     }
 }
