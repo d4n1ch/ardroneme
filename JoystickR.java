@@ -13,10 +13,7 @@ class JoystickR extends Joystick {
     	arcanvas.gaz = 0;
     	arcanvas.yaw = 0;
     	
-    	if (ratio == 1) {
-    	    js_x = ox;
-    	    js_y = oy - r;
-	}
+    	if (ratio == 1 && js_y == oy) js_y = oy - r;
     }
 
     void handleDOWN(float ratio) {
@@ -27,10 +24,7 @@ class JoystickR extends Joystick {
     	arcanvas.gaz = 0;
     	arcanvas.yaw = 0;
 
-    	if (ratio == 1) {
-    	    js_x = ox;
-    	    js_y = oy + r;
-	}
+    	if (ratio == 1 && js_y == oy) js_y = oy + r;
     }
 
     void handleLEFT(float ratio) {
@@ -41,10 +35,7 @@ class JoystickR extends Joystick {
     	arcanvas.gaz = 0;
     	arcanvas.yaw = -arcanvas.speed;
 
-    	if (ratio == 1) {
-    	    js_x = ox - r;
-    	    js_y = oy;
-	}
+    	if (ratio == 1 && js_x == ox) js_x = ox - r;
     }
 
     void handleRIGHT(float ratio) {
@@ -55,10 +46,7 @@ class JoystickR extends Joystick {
     	arcanvas.gaz = 0;
     	arcanvas.yaw = arcanvas.speed;
 
-    	if (ratio == 1) {
-    	    js_x = ox + r;
-    	    js_y = oy;
-	}
+    	if (ratio == 1 && js_x == ox) js_x = ox + r;
     }
     
     void handlePressed() {
