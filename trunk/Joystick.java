@@ -58,7 +58,7 @@ abstract class Joystick extends Widget implements PointerHandler {
 	if (-ratio_x >= RATIO_MIN && ((ratio_y <= 0 && -ratio_y < -ratio_x) 
 			|| (ratio_y > 0 && ratio_y < -ratio_x))) handleLEFT(-ratio_x);
 	if (ratio_x >= RATIO_MIN && ((ratio_y <= 0 && -ratio_y > -ratio_x) 
-			|| (ratio_y > 0 && ratio_y > ratio_x))) handleRIGHT(ratio_x);
+			|| (ratio_y > 0 && ratio_y < ratio_x))) handleRIGHT(ratio_x);
     }
 
     abstract void handleUP(float ratio);
