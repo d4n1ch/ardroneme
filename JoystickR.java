@@ -87,12 +87,12 @@ class JoystickR extends Joystick {
         }
 
 	//UP (Pitch-) arrow
-	if (arcanvas.pitch > 0) g.setColor(0, 255, 0);
+	if (arcanvas.pitch < 0) g.setColor(0, 255, 0);
 	else g.setColor(100, 100, 100);
     	g.fillTriangle(ox, oy - w/2 - bw/2, ox - bw/2, oy - w/2 - bw/5, ox + bw/2, oy - w/2 - bw/5);
 
 	//DOWN (Pitch+) arrow
-	if (arcanvas.pitch < 0) g.setColor(0, 255, 0);
+	if (arcanvas.pitch > 0) g.setColor(0, 255, 0);
 	else g.setColor(100, 100, 100);
     	g.fillTriangle(ox, oy + w/2 + bw/2, ox - bw/2, oy + w/2 + bw/5, ox + bw/2, oy + w/2 + bw/5);
 
