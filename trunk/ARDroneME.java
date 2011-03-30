@@ -240,7 +240,7 @@ public class ARDroneME extends MIDlet implements Runnable, CommandListener, Item
 	    	}
 
 	        if (at_cmd == null) {
-	            if (flying_flag) put_pcmd_into_at_cmd(1, arcanvas.roll, arcanvas.pitch, arcanvas.gaz, arcanvas.yaw);
+	            if (flying_flag) put_pcmd_into_at_cmd(arcanvas.enable, arcanvas.roll, arcanvas.pitch, arcanvas.gaz, arcanvas.yaw);
 		    else put_pcmd_into_at_cmd(0, 0, 0, 0, 0);
 	    	}
 	    }

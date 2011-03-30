@@ -7,6 +7,7 @@ class JoystickL extends Joystick {
     
     void handleUP(float ratio) {
     	System.out.println("handleUP(): " + ratio);
+    	arcanvas.enable = 1;
     	arcanvas.roll = 0;
     	arcanvas.pitch = 0;
     	arcanvas.gaz = arcanvas.speed;
@@ -20,6 +21,7 @@ class JoystickL extends Joystick {
 
     void handleDOWN(float ratio) {
     	System.out.println("handleDOWN(): " + ratio);
+    	arcanvas.enable = 1;
     	arcanvas.roll = 0;
     	arcanvas.pitch = 0;
     	arcanvas.gaz = -arcanvas.speed;
@@ -33,6 +35,7 @@ class JoystickL extends Joystick {
 
     void handleLEFT(float ratio) {
     	System.out.println("handleLEFT(): " + ratio);
+    	arcanvas.enable = 1;
     	arcanvas.roll = -arcanvas.speed;
     	arcanvas.pitch = 0;
     	arcanvas.gaz = 0;
@@ -46,6 +49,7 @@ class JoystickL extends Joystick {
 
     void handleRIGHT(float ratio) {
     	System.out.println("handleRIGHT(): " + ratio);
+    	arcanvas.enable = 1;
     	arcanvas.roll = arcanvas.speed;
     	arcanvas.pitch = 0;
     	arcanvas.gaz = 0;
@@ -64,6 +68,7 @@ class JoystickL extends Joystick {
     
     void handleReleased() {
     	System.out.println("handleReleased()");
+    	arcanvas.enable = 0;
     	arcanvas.roll = 0;
     	arcanvas.pitch = 0;
     	arcanvas.gaz = 0;
