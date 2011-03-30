@@ -13,6 +13,7 @@ class ArCanvas extends Canvas {
     static final float SPEED_MAX = (float)0.9;
     static final float SPEED_MIN = (float)0.0;
     float speed = (float)0.2;
+    int enable = 0;
     float roll = 0, pitch = 0, gaz = 0, yaw = 0;
     boolean shift = false;
     int w, h, wh, fh, bw, bh, last_y, slider_y0, slider_y, o_x, o_y;

@@ -7,8 +7,9 @@ class JoystickR extends Joystick {
     
     void handleUP(float ratio) {
     	System.out.println("handleUP(): " + ratio);
+    	arcanvas.enable = 1;
     	arcanvas.roll = 0;
-    	arcanvas.pitch = arcanvas.speed;
+    	arcanvas.pitch = -arcanvas.speed;
     	arcanvas.gaz = 0;
     	arcanvas.yaw = 0;
     	
@@ -20,8 +21,9 @@ class JoystickR extends Joystick {
 
     void handleDOWN(float ratio) {
     	System.out.println("handleDOWN(): " + ratio);
+    	arcanvas.enable = 1;
     	arcanvas.roll = 0;
-    	arcanvas.pitch = -arcanvas.speed;
+    	arcanvas.pitch = arcanvas.speed;
     	arcanvas.gaz = 0;
     	arcanvas.yaw = 0;
 
@@ -33,6 +35,7 @@ class JoystickR extends Joystick {
 
     void handleLEFT(float ratio) {
     	System.out.println("handleLEFT(): " + ratio);
+    	arcanvas.enable = 1;
     	arcanvas.roll = 0;
     	arcanvas.pitch = 0;
     	arcanvas.gaz = 0;
@@ -46,6 +49,7 @@ class JoystickR extends Joystick {
 
     void handleRIGHT(float ratio) {
     	System.out.println("handleRIGHT(): " + ratio);
+    	arcanvas.enable = 1;
     	arcanvas.roll = 0;
     	arcanvas.pitch = 0;
     	arcanvas.gaz = 0;
@@ -64,6 +68,7 @@ class JoystickR extends Joystick {
 
     void handleReleased() {
     	System.out.println("handleReleased()");
+    	arcanvas.enable = 0;
     	arcanvas.roll = 0;
     	arcanvas.pitch = 0;
     	arcanvas.gaz = 0;
@@ -81,12 +86,12 @@ class JoystickR extends Joystick {
             g.fillArc(js_x - bw/4, js_y - bw/4, bw/2, bw/2, 0, 360);
         }
 
-	//UP (Pitch+) arrow
+	//UP (Pitch-) arrow
 	if (arcanvas.pitch > 0) g.setColor(0, 255, 0);
 	else g.setColor(100, 100, 100);
     	g.fillTriangle(ox, oy - w/2 - bw/2, ox - bw/2, oy - w/2 - bw/5, ox + bw/2, oy - w/2 - bw/5);
 
-	//DOWN (Pitch-) arrow
+	//DOWN (Pitch+) arrow
 	if (arcanvas.pitch < 0) g.setColor(0, 255, 0);
 	else g.setColor(100, 100, 100);
     	g.fillTriangle(ox, oy + w/2 + bw/2, ox - bw/2, oy + w/2 + bw/5, ox + bw/2, oy + w/2 + bw/5);
