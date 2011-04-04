@@ -9,7 +9,8 @@ Initial: 2011.03.13
 
 
 ########## Keyboad Layout ############
-Takeoff/Landing: a toggle button
+Takeoff/Landing: a toggle button (or Camera button)
+Emergency: "E" button (or MediaPlayer button), only effective after Landing button pressed first)
 Hovering: when the Arrow button loosed
 Speed(%) slider: change rudder rate in range of 0%~90%
 Arrow Keys and 2 Soft-Joysticks on the touch screen are linked.
@@ -297,6 +298,18 @@ public class ARDroneME extends MIDlet implements Runnable, CommandListener, Item
 	    send("AT*COMWDG=1");
 	    Thread.sleep(INTERVAL);
 	    send("AT*CONFIG=1,\"control:altitude_max\",\"10000\""); //altitude max in mm: 10000=unlimited
+	    Thread.sleep(INTERVAL);
+	    send("AT*CTRL=1,5,0");
+	    Thread.sleep(INTERVAL);
+	    send("AT*CONFIG=1,\"control:euler_angle_max\",\"0.2\""); //max radians 0.2 = 180*0.2/3.14 = 11 degrees
+	    Thread.sleep(INTERVAL);
+	    send("AT*CTRL=1,5,0");
+	    Thread.sleep(INTERVAL);
+	    send("AT*CONFIG=1,\"control:control_vz_max\",\"2000.0\""); //2000mm/s
+	    Thread.sleep(INTERVAL);
+	    send("AT*CTRL=1,5,0");
+	    Thread.sleep(INTERVAL);
+	    send("AT*CONFIG=1,\"control:control_yaw\",\"2.0\""); //radians 2.0/s
 	    Thread.sleep(INTERVAL);
 	    send("AT*CTRL=1,5,0");
 	    Thread.sleep(INTERVAL);

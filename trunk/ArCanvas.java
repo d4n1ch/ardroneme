@@ -15,16 +15,17 @@ class ArCanvas extends Canvas {
     float speed = (float)0.2;
     int enable = 0;
     float roll = 0, pitch = 0, gaz = 0, yaw = 0;
-    boolean shift = false;
+    boolean shift = false, inEmergency = false;
     int w, h, wh, fh, bw, bh, last_y, slider_y0, slider_y, o_x, o_y;
     Font f;
     ARDroneME ardroneme;
     int battery = 0;
     float altitude = 0;
-    String status_str = "";
+    String status_str = "", trace_str = null;
     Vector widgets = new Vector();
     JoystickL js_L;
     JoystickR js_R;
+    long time_keyPressed;
 
     public ArCanvas(ARDroneME ardroneme) {
     	this.ardroneme = ardroneme;
@@ -50,8 +51,24 @@ class ArCanvas extends Canvas {
 	//Todo: use Vetor widgets to store them ...
     }
 
+    public void handleTakeoffLanding() {
+	if (!ardroneme.flying_flag) ardroneme.send_at_cmd("AT*REF=1,290718208"); //Takeoff
+	else ardroneme.send_at_cmd("AT*REF=1,290717696");			 //Landing
+	ardroneme.flying_flag = !ardroneme.flying_flag;
+    }
+
+    public void handleEmergency() {
+    	if (ardroneme.flying_flag) return; //To avoid motors stopped in the sky!
+	System.out.println("E");
+	ardroneme.send_at_cmd("AT*REF=1,290717952");
+	inEmergency = !inEmergency;
+    }
+
     public void keyPressed(int keyCode) {
+    	time_keyPressed = System.currentTimeMillis();
 	//System.out.println("keyPressed: " + keyCode);
+	//trace_str = "keyPressed: " + keyCode;
+
         switch (getGameAction(keyCode)) {
             case Canvas.FIRE:
                 System.out.println("FIRE 1");
@@ -97,7 +114,26 @@ class ArCanvas extends Canvas {
     }
 
     public void keyReleased(int keyCode) {
-	//System.out.println("keyReleased: " + keyCode);
+    	int time_diff = (int)(System.currentTimeMillis() - time_keyPressed);
+	//System.out.println("keyReleased: " + keyCode + ", " + time_diff);
+	//trace_str = "keyReleased: " + keyCode + ", " + time_diff;
+	
+	//The Scrolling Keys are released in 1~3ms (20~24ms during Socket reconnecting),
+	//other keys are in 150~300ms as the fastest.
+	if (time_diff < 30) {
+            switch (getGameAction(keyCode)) {           
+                case Canvas.UP:
+                    System.out.println("Scrolling UP");  //Camera button
+                    handleEmergency();
+                    break;
+                
+                case Canvas.DOWN:
+                    System.out.println("Scrolling DOWN"); //MediaPlayer button
+                    handleTakeoffLanding();
+                    break;
+            }
+	}
+
 	js_L.handleReleased(); //Todo: loop Vetor widgets for all handlers
 	js_R.handleReleased();
 
@@ -116,14 +152,11 @@ class ArCanvas extends Canvas {
 	}
 	
 	if (x > (w - bw)/2 && x < (w + bw)/2 && y > h - fh - bh && y < h - fh) {
-	    if (!ardroneme.flying_flag) ardroneme.send_at_cmd("AT*REF=1,290718208");	//Takeoff
-	    else ardroneme.send_at_cmd("AT*REF=1,290717696");			//Landing
-	    ardroneme.flying_flag = !ardroneme.flying_flag;
+	    handleTakeoffLanding();
 	}
 	
-	if (!ardroneme.flying_flag && x > w/2 - bh/2 && x < w/2 + bh/2 && y > fh && y < fh + bh) {
-	    System.out.println("E");
-	    ardroneme.send_at_cmd("AT*REF=1,290717952");
+	if (x > w/2 - bh/2 && x < w/2 + bh/2 && y > fh && y < fh + bh) {
+	    handleEmergency();
 	}
 
 	repaint();
@@ -194,7 +227,8 @@ class ArCanvas extends Canvas {
         g.setColor(200, 200, 200);
         g.fillArc(w/2 - bh/2, fh, bh, bh, 0, 360);
 	//g.setColor(255, 0, 0);
-	g.setColor(0, 0, 255); //JavaFX1.2 bug: (B,G,R) format for Text
+	if (inEmergency) g.setColor(0, 255, 0);
+	else g.setColor(0, 0, 255); //JavaFX1.2 bug: (B,G,R) format for Text
         g.drawString("E", w/2, fh + (bh + fh)/2, Graphics.BOTTOM|Graphics.HCENTER);
 
         g.setColor(0, 0, 0);
@@ -206,5 +240,6 @@ class ArCanvas extends Canvas {
         g.drawString("Altitude: ", w - 2 - f.stringWidth("000.000m"), 0, Graphics.TOP|Graphics.RIGHT);
         g.drawString(altitude + "m", w - 2, 0, Graphics.TOP|Graphics.RIGHT);
         g.drawString("Status: " + status_str, 2, h, Graphics.BOTTOM|Graphics.LEFT);
+        if (trace_str != null) g.drawString("Trace: " + trace_str, 2, fh, Graphics.TOP|Graphics.LEFT);
     }
 }

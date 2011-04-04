@@ -3,6 +3,7 @@ import javax.microedition.io.DatagramConnection;
 import javax.microedition.io.Connector;
 import javax.microedition.io.ConnectionNotFoundException;
 import javax.microedition.io.ServerSocketConnection;
+import java.io.IOException;
 
 class NavData extends Thread { 
     static final int NAV_PORT = 5554;
@@ -83,7 +84,9 @@ class NavData extends Thread {
     	    
 	    dc_nav = (DatagramConnection)Connector.open("datagram://:" + NAV_PORT);
     	    dg = dc_nav.newDatagram(10240);
-	} catch(Exception e) {}
+	} catch(Exception e) {
+	    e.printStackTrace();
+	}
     }
 
     public void run() {
@@ -171,6 +174,8 @@ class NavData extends Thread {
 
 	    if ((state & MYKONOS_EMERGENCY_MASK) > 0) {
 		arcanvas.status_str = "MYKONOS_EMERGENCY_MASK";
+		arcanvas.repaint_canvas();
+		print_cnt = -10;
 	    }
 
 	    arcanvas.battery = get_int(navdata, NAV_BATTERY_OFFSET);
@@ -190,6 +195,12 @@ class NavData extends Thread {
 	    	ardroneme.rollItem.setText("" + attitude_roll);
 	    	ardroneme.yawItem.setText("" + attitude_yaw);
 	    }
+	} catch(IOException e1) { 
+	    e1.printStackTrace();
+	    ardrone_ip_cur = ""; //trigger a reconnect
+	    try {
+	    	Thread.sleep(1000);
+	    } catch(Exception e2) {}
 	} catch(Exception e) { 
 	    e.printStackTrace(); 
 	}
