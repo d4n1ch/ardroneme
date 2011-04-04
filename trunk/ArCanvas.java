@@ -123,12 +123,12 @@ class ArCanvas extends Canvas {
 	if (time_diff < 30) {
             switch (getGameAction(keyCode)) {           
                 case Canvas.UP:
-                    System.out.println("Scrolling UP");  //Camera button
+                    System.out.println("Scrolling UP");  //Re-assigned Camera button
                     handleEmergency();
                     break;
                 
                 case Canvas.DOWN:
-                    System.out.println("Scrolling DOWN"); //MediaPlayer button
+                    System.out.println("Scrolling DOWN"); //Re-assigned MediaPlayer button
                     handleTakeoffLanding();
                     break;
             }

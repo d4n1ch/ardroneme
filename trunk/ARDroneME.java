@@ -9,8 +9,8 @@ Initial: 2011.03.13
 
 
 ########## Keyboad Layout ############
-Takeoff/Landing: a toggle button (or Camera button)
-Emergency: "E" button (or MediaPlayer button), only effective after Landing button pressed first)
+Takeoff/Landing: a toggle button (or MediaPlayer button)
+Emergency: "E" button (or Camera button), only effective after Landing button pressed first)
 Hovering: when the Arrow button loosed
 Speed(%) slider: change rudder rate in range of 0%~90%
 Arrow Keys and 2 Soft-Joysticks on the touch screen are linked.
