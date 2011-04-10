@@ -15,7 +15,7 @@ class ArCanvas extends Canvas {
     float speed = (float)0.2;
     int enable = 0;
     float roll = 0, pitch = 0, gaz = 0, yaw = 0;
-    boolean shift = false, inEmergency = false;
+    boolean shift = false, inEmergency = false, direct_motor = false;
     int w, h, wh, fh, bw, bh, last_y, slider_y0, slider_y, o_x, o_y;
     Font f;
     ARDroneME ardroneme;
@@ -74,7 +74,6 @@ class ArCanvas extends Canvas {
                 System.out.println("FIRE 1");
     	    	shift = !shift;
     	    	repaint();
-            
                 return;
 
             case Canvas.UP:
@@ -101,11 +100,15 @@ class ArCanvas extends Canvas {
             	else js_R.handleRIGHT(1);
                 break; 
             
-            default:/*
-		if (keyCode >= 48 && keyCode <= 57) { //support Num keys (0~9)
+            default:
+		/*if (keyCode >= 48 && keyCode <= 57) { //support Num keys (0~9)
 		}*/
-		
-            	return;
+		if (keyCode == KEY_POUND) {
+		    System.out.println("KEY_POUND 1");
+		    direct_motor = !direct_motor;
+		}
+    	    	repaint();
+                return;
         }
         
 	repaint();
@@ -117,7 +120,7 @@ class ArCanvas extends Canvas {
     	int time_diff = (int)(System.currentTimeMillis() - time_keyPressed);
 	//System.out.println("keyReleased: " + keyCode + ", " + time_diff);
 	//trace_str = "keyReleased: " + keyCode + ", " + time_diff;
-	
+
 	//The Scrolling Keys are released in 1~3ms (20~24ms during Socket reconnecting),
 	//other keys are in 150~300ms as the fastest.
 	if (time_diff < 30) {
@@ -130,6 +133,11 @@ class ArCanvas extends Canvas {
                 case Canvas.DOWN:
                     System.out.println("Scrolling DOWN"); //Re-assigned MediaPlayer button
                     handleTakeoffLanding();
+                    break;
+
+                case Canvas.RIGHT:
+                    System.out.println("Scrolling RIGHT"); //Re-assigned long pressed Volume+ button
+		    direct_motor = !direct_motor;
                     break;
             }
 	}

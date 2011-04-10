@@ -70,7 +70,8 @@ class JoystickR extends Joystick {
     	joystickPaint(g);
 
         if (arcanvas.shift) {
-            g.setColor(100, 100, 100);
+            if (arcanvas.direct_motor) g.setColor(255, 0, 0);
+            else g.setColor(100, 100, 100);
             g.fillArc(js_x - bw/4, js_y - bw/4, bw/2, bw/2, 0, 360);
         }
 

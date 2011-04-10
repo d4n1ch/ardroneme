@@ -241,8 +241,10 @@ public class ARDroneME extends MIDlet implements Runnable, CommandListener, Item
 	    	}
 
 	        if (at_cmd == null) {
-	            if (flying_flag) put_pcmd_into_at_cmd(arcanvas.enable, arcanvas.roll, arcanvas.pitch, arcanvas.gaz, arcanvas.yaw);
-		    else put_pcmd_into_at_cmd(0, 0, 0, 0, 0);
+	            if (flying_flag) {
+	            	if (arcanvas.direct_motor) put_motor_into_at_cmd(arcanvas.enable, arcanvas.roll, arcanvas.pitch, arcanvas.gaz, arcanvas.yaw);
+	            	else put_pcmd_into_at_cmd(arcanvas.enable, arcanvas.roll, arcanvas.pitch, arcanvas.gaz, arcanvas.yaw);
+		    } else put_pcmd_into_at_cmd(0, 0, 0, 0, 0);
 	    	}
 	    }
             
@@ -278,7 +280,12 @@ public class ARDroneME extends MIDlet implements Runnable, CommandListener, Item
 	at_cmd = "AT*PCMD=" + get_seq() + "," + enable + "," + Float.floatToIntBits(roll) + ","
 		+ Float.floatToIntBits(pitch) + "," + Float.floatToIntBits(gaz) + "," + Float.floatToIntBits(yaw);
     }
-    
+
+    public void put_motor_into_at_cmd(int enable, float roll, float pitch, float gaz, float yaw) {
+	at_cmd = "AT*MOTOR=" + get_seq() + "," + enable + "," + Float.floatToIntBits(roll) + ","
+		+ Float.floatToIntBits(pitch) + "," + Float.floatToIntBits(gaz) + "," + Float.floatToIntBits(yaw);
+    }
+
     public synchronized void send_at_cmd(String cmd) {
     	at_cmd = cmd;
 	notify();
