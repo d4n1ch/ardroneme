@@ -85,6 +85,7 @@ import javax.microedition.lcdui.ChoiceGroup;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.ItemCommandListener;
+import javax.microedition.lcdui.ItemStateListener;
 import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Form;
@@ -97,9 +98,9 @@ import javax.microedition.io.Datagram;
 import javax.microedition.io.Connector;
 import javax.microedition.io.DatagramConnection;
 
-public class ARDroneME extends MIDlet implements Runnable, CommandListener, ItemCommandListener {
+public class ARDroneME extends MIDlet implements Runnable, CommandListener, ItemCommandListener, ItemStateListener {
     static final int AT_PORT = 5556;
-    static final int INTERVAL = 30; //within 50ms to avoid ARDRONE_COM_WATCHDOG_MASK (pitch and roll does not react in this state)
+    static final int INTERVAL = 30; //ms
     String ardrone_ip = "192.168.1.1";
     //String ardrone_ip = "192.168.0.100";
     String ardrone_ip_bak = "";
@@ -116,7 +117,7 @@ public class ARDroneME extends MIDlet implements Runnable, CommandListener, Item
     static Display display;
     TextField atCmdField;
     StringItem pitchItem, rollItem, yawItem;
-    ChoiceGroup ipCG;
+    ChoiceGroup ipCG, atCG;
 
     Command setCommand = new Command("Settings", Command.ITEM, 1);
     Command exitCommand = new Command("Exit", Command.EXIT, 1);
@@ -126,6 +127,43 @@ public class ARDroneME extends MIDlet implements Runnable, CommandListener, Item
     Command atCommand = new Command("Send AT Command", Command.ITEM, 1);
     String[] ip_list = {"192.168.1.1", "192.168.0.100", "192.168.0.5", "169.254.2.2"};
     int ardrone_ip_idx = 0;
+/*
+AT*GAIN=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d<LF>
+Argument 1 :  the sequence number = 1
+Argument 2 :  pq_kp : proportionnal gain for pitch (p) and roll (q) angular rate = 20000
+Argument 3 :  r_kp : proportionnal gain for yaw (r) angular rate = 100000
+Argument 4 :  r_ki : integral gain for yaw (r) angular rate = 10000
+Argument 5 :  ea_kp : proportionnal gain for the Euler Angle = 9000
+Argument 6 :  ea_ki : integral gain for the Euler Angle = 8000
+Argument 7 :  alt_kp: proportionnal gain for the altitude = 2000
+Argument 8 :  alt_ki: integral gain for the altitude = 400
+Argument 9 :  vz_kp : proportionnal gain for the vertical speed = 100
+Argument 10 : vz_ki: integral gain for the vertical speed = 50
+Argument 11 : hv_kp: proportionnal gain for the hovering = 8000
+Argument 12 : hv_ki: integral gain for the hovering = 8000
+*/
+    String[] at_name_list =    {"LED Red/Green blink 5s",
+    				"WPADD alt=1m",
+    				"WPADD alt=5m",
+    				"GAIN alt_kp=0,alt_ki=0,vz_kp=0,vz_ki=0",
+    				"GAIN alt_kp=0,alt_ki=0",
+    				"GAIN vz_kp=0,vz_ki=0",
+    				"GAIN pq_kp=0",
+    				"GAIN ea_kp=0,ea_ki=0",
+    				"GAIN hv_kp=0,hv_ki=0",
+    				"GAIN default"    				
+    				};
+    String[] at_cmd_list =     {"AT*LED=1,4,1056964608,5",
+    				"AT*WPADD=1,0,0,1",
+    				"AT*WPADD=1,0,0,5",
+    				"AT*GAIN=1,20000,100000,10000,9000,8000,0,0,0,0,8000,8000",
+    				"AT*GAIN=1,20000,100000,10000,9000,8000,0,0,100,50,8000,8000",
+    				"AT*GAIN=1,20000,100000,10000,9000,8000,2000,400,0,0,8000,8000",
+    				"AT*GAIN=1,0,100000,10000,9000,8000,2000,400,100,50,8000,8000",
+    				"AT*GAIN=1,20000,100000,10000,0,0,2000,400,100,50,8000,8000",
+    				"AT*GAIN=1,20000,100000,10000,9000,8000,2000,400,100,50,0,0",
+    				"AT*GAIN=1,20000,100000,10000,9000,8000,2000,400,100,50,8000,8000"
+    				};
 
     public ARDroneME() {
 	display = Display.getDisplay(this);
@@ -176,11 +214,15 @@ public class ARDroneME extends MIDlet implements Runnable, CommandListener, Item
 	    f.append(ipCG);
 
 	    f.append(" \n");
+	    atCG = new ChoiceGroup("Select AT Cmd", ChoiceGroup.POPUP, at_name_list, null);
+	    atCG.setSelectedIndex(0, true);
+	    f.append(atCG);
+
 	    StringItem at_item = new StringItem("", "Send AT Command", Item.BUTTON);
 	    at_item.setDefaultCommand(atCommand);
 	    at_item.setItemCommandListener(this);
 	    f.append(at_item);
-	    atCmdField = new TextField("", "AT*LED=1,4,1056964608,5", 30, TextField.ANY);
+	    atCmdField = new TextField("", "AT*LED=1,4,1056964608,5", 100, TextField.ANY);
 	    f.append(atCmdField);
 
 	    f.append(" \n");
@@ -199,6 +241,7 @@ public class ARDroneME extends MIDlet implements Runnable, CommandListener, Item
 	    f.addCommand(okCommand);
 	    f.addCommand(cancelCommand);
 	    f.setCommandListener(this);
+	    f.setItemStateListener(this);
 	    display.setCurrent(f);
         } else if (c == okCommand) {
             ardrone_ip_idx = ipCG.getSelectedIndex();
@@ -220,6 +263,12 @@ public class ARDroneME extends MIDlet implements Runnable, CommandListener, Item
 	    send_at_cmd(atCmdField.getString());
         }
      }
+     
+    public void itemStateChanged(Item src) {
+	if (src == atCG) {
+	    atCmdField.setString(at_cmd_list[atCG.getSelectedIndex()]);
+	}
+    }
 
     public void run() {
     	int cnt = 0, navdata_cnt_old = navdata_cnt;
@@ -228,10 +277,10 @@ public class ARDroneME extends MIDlet implements Runnable, CommandListener, Item
 	try {
 	    if (at_cmd == null) {
 	    	synchronized(this) {
-                    wait(INTERVAL);
+                    wait(200); //within 250ms to avoid ARDRONE_COM_WATCHDOG_MASK (pitch and roll does not react in this state)
         	}
 
-		if (++cnt > 100) { //3s
+		if (++cnt > 15) { //15*200 = 3s
 		    cnt = 0;
 		    if (navdata_cnt == navdata_cnt_old) {
 	    	    	navdata.interrupt_receive();
@@ -282,8 +331,8 @@ public class ARDroneME extends MIDlet implements Runnable, CommandListener, Item
     }
 
     public void put_motor_into_at_cmd(int enable, float roll, float pitch, float gaz, float yaw) {
-	at_cmd = "AT*MOTOR=" + get_seq() + "," + enable + "," + Float.floatToIntBits(roll) + ","
-		+ Float.floatToIntBits(pitch) + "," + Float.floatToIntBits(gaz) + "," + Float.floatToIntBits(yaw);
+	at_cmd = "AT*MOTOR=" + get_seq() + "," + (int)(roll*50) + "," + (int)(pitch*50) + ","
+					+ (int)(gaz*50) + "," + (int)(yaw*50);
     }
 
     public synchronized void send_at_cmd(String cmd) {

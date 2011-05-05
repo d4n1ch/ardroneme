@@ -138,6 +138,7 @@ class ArCanvas extends Canvas {
                 case Canvas.RIGHT:
                     System.out.println("Scrolling RIGHT"); //Re-assigned long pressed Volume+ button
 		    direct_motor = !direct_motor;
+		    ardroneme.send_at_cmd("AT*GAIN=1,20000,100000,10000,9000,8000,2000,400,100,50,8000,8000");
                     break;
             }
 	}
