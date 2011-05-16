@@ -15,12 +15,13 @@ class ArCanvas extends Canvas {
     float speed = (float)0.2;
     int enable = 0;
     float roll = 0, pitch = 0, gaz = 0, yaw = 0;
-    boolean shift = false, inEmergency = false, direct_motor = false;
+    boolean shift = false, inEmergency = false, direct_motor = false, go_mode = false;
     int w, h, wh, fh, bw, bh, last_y, slider_y0, slider_y, o_x, o_y;
     Font f;
     ARDroneME ardroneme;
     int battery = 0;
     float altitude = 0;
+    float latitude = 0, longitude = 0, heading = 0, altitude_us = 0, altitude_baro = 0, altitude_baro_raw = 0;
     String status_str = "", trace_str = null;
     Vector widgets = new Vector();
     JoystickL js_L;
@@ -250,5 +251,10 @@ class ArCanvas extends Canvas {
         g.drawString(altitude + "m", w - 2, 0, Graphics.TOP|Graphics.RIGHT);
         g.drawString("Status: " + status_str, 2, h, Graphics.BOTTOM|Graphics.LEFT);
         if (trace_str != null) g.drawString("Trace: " + trace_str, 2, fh, Graphics.TOP|Graphics.LEFT);
+        
+        g.drawString("Heading: " + heading, 2, fh, Graphics.TOP|Graphics.LEFT);
+        g.drawString("Us: " + altitude_us, (w + bw)/2, fh, Graphics.TOP|Graphics.LEFT);
+        g.drawString("Baro: " + altitude_baro + "/" + altitude_baro_raw, (w + bw)/2, h-fh, Graphics.BOTTOM|Graphics.LEFT);
+        g.drawString("GPS(" + latitude + ", " + longitude + ")", 2, h - fh, Graphics.BOTTOM|Graphics.LEFT);        
     }
 }

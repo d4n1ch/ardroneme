@@ -13,6 +13,14 @@ class NavData extends Thread {
     static final int NAV_ROLL_OFFSET	= 32;
     static final int NAV_YAW_OFFSET	= 36;
     static final int NAV_ALTITUDE_OFFSET= 40;
+    
+    //Reuse some fields for NavData2 from Arduino sensor board with GPS/Compass/Barometer
+    static final int NAV_LATITUDE_OFFSET	= 44;
+    static final int NAV_LONGITUDE_OFFSET	= 48;
+    static final int NAV_HEADING_OFFSET		= 52;
+    static final int NAV_ALTITUDE_US_OFFSET	= 56;
+    static final int NAV_ALTITUDE_BARO_OFFSET	= 60;
+    static final int NAV_ALTITUDE_BARO_RAW_OFFSET = 64;
 
     static final int MYKONOS_TRIM_COMMAND_MASK   = 1 <<  7; /*!< Trim command ACK : (0) None, (1) one received */
     static final int MYKONOS_TRIM_RUNNING_MASK   = 1 <<  8; /*!< Trim running : (0) none, (1) running */
@@ -76,9 +84,9 @@ class NavData extends Thread {
     	    System.out.println("Sent NavData trigger bytes to " + ardrone_ip_cur + ":" + NAV_PORT);
 	    arcanvas.status_str = local_ip + " -> " + ardrone_ip_cur;
  	    arcanvas.repaint_canvas();
-	    Thread.sleep(ARDroneME.INTERVAL);
+	    Thread.sleep(ARDroneME.DELAY_IN_MS);
 	    ardroneme.send("AT*CONFIG=1,\"general:navdata_demo\",\"TRUE\"");
-	    Thread.sleep(ARDroneME.INTERVAL);
+	    Thread.sleep(ARDroneME.DELAY_IN_MS);
 	    ardroneme.send("AT*CTRL=1,5,0");
     	    dc_nav.close();
     	    
@@ -143,13 +151,13 @@ class NavData extends Thread {
 		arcanvas.repaint_canvas();
 		print_cnt = -10;
 		ardroneme.send("AT*COMWDG=1");
-		Thread.sleep(ARDroneME.INTERVAL);		
+		Thread.sleep(ARDroneME.DELAY_IN_MS);		
 	    }
 
 	    if ((state & MYKONOS_TRIM_COMMAND_MASK) > 0) {
 	    	System.out.println("MYKONOS_TRIM_COMMAND_MASK");
 		ardroneme.send("AT*LED=1,4,1056964608,5");
-		Thread.sleep(ARDroneME.INTERVAL);		
+		Thread.sleep(ARDroneME.DELAY_IN_MS);		
 	    }
 
 	    if ((state & MYKONOS_TRIM_RESULT_MASK) > 0) {
@@ -184,6 +192,12 @@ class NavData extends Thread {
 	    attitude_roll = get_float(navdata, NAV_ROLL_OFFSET)/1000;
 	    attitude_yaw = get_float(navdata, NAV_YAW_OFFSET)/1000;
 	    
+	    arcanvas.latitude = get_float(navdata, NAV_LATITUDE_OFFSET);
+	    arcanvas.longitude = get_float(navdata, NAV_LONGITUDE_OFFSET);
+	    arcanvas.heading = get_float(navdata, NAV_HEADING_OFFSET);
+	    arcanvas.altitude_us = ((float)get_int(navdata, NAV_ALTITUDE_US_OFFSET)/1000);
+	    arcanvas.altitude_baro = get_float(navdata, NAV_ALTITUDE_BARO_OFFSET);
+	    arcanvas.altitude_baro_raw = get_float(navdata, NAV_ALTITUDE_BARO_RAW_OFFSET);
 	    
 	    if (++print_cnt > 5) {
 	    	print_cnt = 0;

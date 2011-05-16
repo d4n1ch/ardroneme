@@ -100,7 +100,8 @@ import javax.microedition.io.DatagramConnection;
 
 public class ARDroneME extends MIDlet implements Runnable, CommandListener, ItemCommandListener, ItemStateListener {
     static final int AT_PORT = 5556;
-    static final int INTERVAL = 30; //ms
+    static final int DELAY_IN_MS = 30;
+    static final int INTERVAL_IN_MS = 100;  //within 250ms to avoid ARDRONE_COM_WATCHDOG_MASK (pitch and roll does not react in this state)
     String ardrone_ip = "192.168.1.1";
     //String ardrone_ip = "192.168.0.100";
     String ardrone_ip_bak = "";
@@ -117,7 +118,7 @@ public class ARDroneME extends MIDlet implements Runnable, CommandListener, Item
     static Display display;
     TextField atCmdField;
     StringItem pitchItem, rollItem, yawItem;
-    ChoiceGroup ipCG, atCG;
+    ChoiceGroup ipCG, atCG, modeCG;
 
     Command setCommand = new Command("Settings", Command.ITEM, 1);
     Command exitCommand = new Command("Exit", Command.EXIT, 1);
@@ -144,7 +145,8 @@ Argument 12 : hv_ki: integral gain for the hovering = 8000
 */
     String[] at_name_list =    {"LED Red/Green blink 5s",
     				"WPADD alt=1m",
-    				"WPADD alt=5m",
+    				"WPADD alt=15m",
+    				"WPADD alt=30m",
     				"GAIN alt_kp=0,alt_ki=0,vz_kp=0,vz_ki=0",
     				"GAIN alt_kp=0,alt_ki=0",
     				"GAIN vz_kp=0,vz_ki=0",
@@ -155,7 +157,8 @@ Argument 12 : hv_ki: integral gain for the hovering = 8000
     				};
     String[] at_cmd_list =     {"AT*LED=1,4,1056964608,5",
     				"AT*WPADD=1,0,0,1",
-    				"AT*WPADD=1,0,0,5",
+    				"AT*WPADD=1,0,0,15",
+    				"AT*WPADD=1,0,0,30",
     				"AT*GAIN=1,20000,100000,10000,9000,8000,0,0,0,0,8000,8000",
     				"AT*GAIN=1,20000,100000,10000,9000,8000,0,0,100,50,8000,8000",
     				"AT*GAIN=1,20000,100000,10000,9000,8000,2000,400,0,0,8000,8000",
@@ -164,6 +167,7 @@ Argument 12 : hv_ki: integral gain for the hovering = 8000
     				"AT*GAIN=1,20000,100000,10000,9000,8000,2000,400,100,50,0,0",
     				"AT*GAIN=1,20000,100000,10000,9000,8000,2000,400,100,50,8000,8000"
     				};
+    String[] mode_list = {"Go Mode"};
 
     public ARDroneME() {
 	display = Display.getDisplay(this);
@@ -213,6 +217,10 @@ Argument 12 : hv_ki: integral gain for the hovering = 8000
 	    ipCG.setSelectedIndex(ardrone_ip_idx, true);
 	    f.append(ipCG);
 
+	    modeCG = new ChoiceGroup("", ChoiceGroup.MULTIPLE, mode_list, null);
+	    modeCG.setSelectedIndex(0, false);
+	    f.append(modeCG);
+
 	    f.append(" \n");
 	    atCG = new ChoiceGroup("Select AT Cmd", ChoiceGroup.POPUP, at_name_list, null);
 	    atCG.setSelectedIndex(0, true);
@@ -256,6 +264,7 @@ Argument 12 : hv_ki: integral gain for the hovering = 8000
     
     public void commandAction(Command c, Item item) {
     	ardrone_ip = ipCG.getString(ipCG.getSelectedIndex());
+    	arcanvas.go_mode = modeCG.isSelected(0);
 
 	if (c == trimCommand) {
 	    send_at_cmd("AT*FTRIM=1");
@@ -277,10 +286,10 @@ Argument 12 : hv_ki: integral gain for the hovering = 8000
 	try {
 	    if (at_cmd == null) {
 	    	synchronized(this) {
-                    wait(200); //within 250ms to avoid ARDRONE_COM_WATCHDOG_MASK (pitch and roll does not react in this state)
+                    wait(INTERVAL_IN_MS); 
         	}
 
-		if (++cnt > 15) { //15*200 = 3s
+		if (++cnt > 3000/INTERVAL_IN_MS) { //No NavData received in 3s
 		    cnt = 0;
 		    if (navdata_cnt == navdata_cnt_old) {
 	    	    	navdata.interrupt_receive();
@@ -352,25 +361,25 @@ Argument 12 : hv_ki: integral gain for the hovering = 8000
             dc_at = (DatagramConnection) Connector.open("datagram://"
 	   				+ ardrone_ip_cur + ":" + AT_PORT);
 	    send("AT*COMWDG=1");
-	    Thread.sleep(INTERVAL);
+	    Thread.sleep(DELAY_IN_MS);
 	    send("AT*CONFIG=1,\"control:altitude_max\",\"10000\""); //altitude max in mm: 10000=unlimited
-	    Thread.sleep(INTERVAL);
+	    Thread.sleep(DELAY_IN_MS);
 	    send("AT*CTRL=1,5,0");
-	    Thread.sleep(INTERVAL);
+	    Thread.sleep(DELAY_IN_MS);
 	    send("AT*CONFIG=1,\"control:euler_angle_max\",\"0.2\""); //max radians 0.2 = 180*0.2/3.14 = 11 degrees
-	    Thread.sleep(INTERVAL);
+	    Thread.sleep(DELAY_IN_MS);
 	    send("AT*CTRL=1,5,0");
-	    Thread.sleep(INTERVAL);
+	    Thread.sleep(DELAY_IN_MS);
 	    send("AT*CONFIG=1,\"control:control_vz_max\",\"2000.0\""); //2000mm/s
-	    Thread.sleep(INTERVAL);
+	    Thread.sleep(DELAY_IN_MS);
 	    send("AT*CTRL=1,5,0");
-	    Thread.sleep(INTERVAL);
+	    Thread.sleep(DELAY_IN_MS);
 	    send("AT*CONFIG=1,\"control:control_yaw\",\"2.0\""); //radians 2.0/s
-	    Thread.sleep(INTERVAL);
+	    Thread.sleep(DELAY_IN_MS);
 	    send("AT*CTRL=1,5,0");
-	    Thread.sleep(INTERVAL);
+	    Thread.sleep(DELAY_IN_MS);
 	    send("AT*PCMD=1,0,0,0,0,0");
-	    Thread.sleep(INTERVAL);
+	    Thread.sleep(DELAY_IN_MS);
 	} catch(Exception e) {}
     }
 }
