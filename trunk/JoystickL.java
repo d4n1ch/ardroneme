@@ -30,10 +30,16 @@ class JoystickL extends Joystick {
     void handleLEFT(float ratio) {
     	System.out.println("handleLEFT(): " + ratio);
     	arcanvas.enable = 1;
-    	arcanvas.roll = -arcanvas.speed;
+    	if (arcanvas.go_mode) {
+    	    arcanvas.roll = -arcanvas.speed;
+    	    arcanvas.yaw = 0;
+	} else {
+    	    arcanvas.roll = 0;
+    	    arcanvas.yaw = -arcanvas.speed;
+	}
+
     	arcanvas.pitch = 0;
     	arcanvas.gaz = 0;
-    	arcanvas.yaw = 0;
 
     	if (ratio == 1 && js_x == ox) js_x = ox - r;
     }
@@ -41,10 +47,15 @@ class JoystickL extends Joystick {
     void handleRIGHT(float ratio) {
     	System.out.println("handleRIGHT(): " + ratio);
     	arcanvas.enable = 1;
-    	arcanvas.roll = arcanvas.speed;
+    	if (arcanvas.go_mode) {
+    	    arcanvas.roll = arcanvas.speed;
+    	    arcanvas.yaw = 0;
+	} else {
+    	    arcanvas.roll = 0;
+    	    arcanvas.yaw = arcanvas.speed;
+	}
     	arcanvas.pitch = 0;
     	arcanvas.gaz = 0;
-    	arcanvas.yaw = 0;
 
     	if (ratio == 1 && js_x == ox) js_x = ox + r;
     }
@@ -87,14 +98,32 @@ class JoystickL extends Joystick {
 	g.drawLine(ox - bw, oy + w/2 + bw/5, ox + bw, oy + w/2 + bw/5);
     	g.fillTriangle(ox, oy + w/2 + bw/2, ox - bw/2, oy + w/2 + bw/5, ox + bw/2, oy + w/2 + bw/5);
 
-	//LEFT (Roll-) arrow
-	if (arcanvas.roll < 0) g.setColor(0, 255, 0);
-	else g.setColor(100, 100, 100);
-    	g.fillTriangle(ox - w/2 - bw/2, oy, ox - w/2 - bw/5, oy - bw/2, ox - w/2 - bw/5, oy + bw/2);
-
-	//Right (Roll+) arrow
-	if (arcanvas.roll > 0) g.setColor(0, 255, 0);
-	else g.setColor(100, 100, 100);
-    	g.fillTriangle(ox + w/2 + bw/2, oy, ox + w/2 + bw/5, oy - bw/2, ox + w/2 + bw/5, oy + bw/2);
+	if (arcanvas.go_mode) {
+	    //LEFT (Roll-) arrow
+	    if (arcanvas.roll < 0) g.setColor(0, 255, 0);
+	    else g.setColor(100, 100, 100);
+    	    g.fillTriangle(ox - w/2 - bw/2, oy, ox - w/2 - bw/5, oy - bw/2, ox - w/2 - bw/5, oy + bw/2);
+            
+	    //Right (Roll+) arrow
+	    if (arcanvas.roll > 0) g.setColor(0, 255, 0);
+	    else g.setColor(100, 100, 100);
+    	    g.fillTriangle(ox + w/2 + bw/2, oy, ox + w/2 + bw/5, oy - bw/2, ox + w/2 + bw/5, oy + bw/2);
+	} else {
+	    //LEFT (Yaw-) arrow
+	    if (arcanvas.yaw < 0) g.setColor(0, 255, 0);
+	    else g.setColor(100, 100, 100);
+	    g.drawArc(ox - w/2 - bw*4/10, oy - bw/2, bw, bw, 120, 120);
+	    g.drawArc(ox - w/2 - bw*4/10 -1, oy - bw/2, bw, bw, 120, 120);
+	    g.drawLine(ox - w/2 - bw*4/10, oy + bw*4/10, ox - w/2 - bw*2/10, oy + bw*4/10);
+	    g.drawLine(ox - w/2 - bw*2/10, oy + bw*2/10, ox - w/2 - bw*2/10, oy + bw*4/10);
+            
+	    //Right (Yaw+) arrow
+	    if (arcanvas.yaw > 0) g.setColor(0, 255, 0);
+	    else g.setColor(100, 100, 100);
+	    g.drawArc(ox + w/2 - bw*6/10, oy - bw/2, bw, bw, -60, 120);
+	    g.drawArc(ox + w/2 - bw*6/10 - 1, oy - bw/2, bw, bw, -60, 120);
+	    g.drawLine(ox + w/2 + bw*4/10, oy + bw*4/10, ox + w/2 + bw*2/10, oy + bw*4/10);
+	    g.drawLine(ox + w/2 + bw*2/10, oy + bw*2/10, ox + w/2 + bw*2/10, oy + bw*4/10);
+	}
     }
 }
